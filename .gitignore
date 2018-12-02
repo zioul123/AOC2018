@@ -1,0 +1,10 @@
+# Ignore executables
+*
+!*.*
+!*/
+
+# Ignore java built files
+*.class
+
+# Ignore OS generated files
+.DS_Store*
