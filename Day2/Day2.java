@@ -8,10 +8,9 @@ public class Day2 {
             input.add(sc.next());
         }
 
-        int hasTwo = count(input,2);
-        //System.out.println("HasTwo: " + hasTwo);
-        int hasThree = count(input,3);
-        //System.out.println("HasThree: " + hasThree);
+        int hasTwo = count(input, 2);
+        int hasThree = count(input, 3);
+
         System.out.println("Result: " + hasTwo * hasThree);
     }
 
@@ -19,7 +18,6 @@ public class Day2 {
         int totalRes = 0;
         for (String s : in) {
             int res = 0;
-            //System.out.println(s);
             HashMap<Character, Integer> count = new HashMap<>();
             for (int i = 0; i < s.length(); i++) {
                 char c = s.charAt(i);
@@ -36,7 +34,7 @@ public class Day2 {
                 count.put(c, count.get(c) + 1);
 
             }
-            //System.out.println(count);
+            
             if (res > 0) totalRes++;
         }
         return totalRes;
@@ -46,5 +44,4 @@ public class Day2 {
         Day2 d = new Day2();
         d.run();
     }
-
 }
