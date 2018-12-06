@@ -23,6 +23,40 @@ struct Date
     }
 };
 
+class Guard 
+{
+public:
+    int id;
+    int sleepFor[60] = {0};
+    Guard() {}
+    Guard(int _id) : id(_id) {}
+    int longestMinute();
+    int sleptAtMost();
+};
+
+int Guard::sleptAtMost()
+{
+    int result = -1;
+    for (int i=0; i<60; i++) 
+        if (sleepFor[i] > result) 
+            result = sleepFor[i];
+    return result;
+}
+
+int Guard::longestMinute() 
+{
+    int result = -1, minute = -1;
+    for (int i=0; i<60; i++) 
+    {
+        if (sleepFor[i] > result) 
+        {
+            result = sleepFor[i];
+            minute = i;
+        }
+    }
+    return minute;
+}
+
 // Compare by first element in a pair
 bool pairCompare(const std::pair<Date, string>& firstElem, 
                  const std::pair<Date, string>& secondElem) 
@@ -51,7 +85,7 @@ int main()
     sort(inputs.begin(), inputs.end(), pairCompare);
 
     // Add all the sleeping hours per guard
-    unordered_map<int, int> hoursSleeping;
+    unordered_map<int, Guard> guards;
     int currentGuard = -1, sleepSince = -1;
     for (vector<pair<Date, string> >::iterator it = inputs.begin(); it != inputs.end();
         ++it) 
@@ -62,66 +96,40 @@ int main()
         {
             case 'G':
                 currentGuard = stoi(s.substr(26, 5));
-                break;
-            case 'f':
-                sleepSince = (*it).first.m;
-                break;
-            case 'w':
-                int sleepFor = (*it).first.m - sleepSince;
-                hoursSleeping[currentGuard] = hoursSleeping[currentGuard] + sleepFor;
-                break;
-        }
-    }
-
-    // Get the guard who slept the longest
-    int longestMins = -1, longestGuard = -1;
-    for (unordered_map<int,int>::iterator it = hoursSleeping.begin(); it != hoursSleeping.end();
-        ++it) 
-    {
-        if ((*it).second > longestMins) {
-            longestMins = (*it).second;
-            longestGuard = (*it).first;
-        }
-    }
-    cout << longestGuard << ", " << longestMins << endl;
-
-    // Iterate through inputs and add total days per minute
-    currentGuard = -1; sleepSince = -1;
-    int sleepFor[60] = { 0 };   
-    for (vector<pair<Date, string> >::iterator it = inputs.begin(); it != inputs.end();
-        ++it) 
-    {
-        string s = (*it).second;
-        char c = s[19];
-        switch(c) 
-        {
-            case 'G':
-                currentGuard = stoi(s.substr(26, 5));
-                break;
-            case 'f':
-                if (currentGuard != longestGuard) continue;
-                sleepSince = (*it).first.m;
-                break;
-            case 'w':
-                if (currentGuard != longestGuard) continue;
-                int sleepTill = (*it).first.m;
-                for (int i = sleepSince; i < sleepTill; i++) {
-                    sleepFor[i]++;
+                if (guards.find(currentGuard) == guards.end()) 
+                {
+                    Guard g(currentGuard);
+                    guards[currentGuard] = g;
                 }
                 break;
+            case 'f':
+                sleepSince = (*it).first.m;
+                break;
+            case 'w':
+                int sleepTill = (*it).first.m;
+                for (int i=sleepSince; i<sleepTill; ++i) 
+                    ++guards[currentGuard].sleepFor[i];
+                break;
         }
+    }
+
+    for (unordered_map<int, Guard>::iterator it = guards.begin(); it != guards.end(); ++it) 
+    {
+        cout << (*it).first << ": " << (*it).second.sleepFor << endl;
+        cout << "Most: " << (*it).second.sleptAtMost() << ", Minute: " << (*it).second.longestMinute() << endl;
     }
 
     // Check which minute he spent the most sleeping in
-    int sleepingMin = -1; int mostSleep = -1;
-    for (int i = 0; i < 60; i++) {
-        if (sleepFor[i] > mostSleep) {
-            mostSleep = sleepFor[i];
-            sleepingMin = i;
+    int sleepingGuard = -1; int mostSleep = -1;
+    for (unordered_map<int, Guard>::iterator it = guards.begin(); it != guards.end(); ++it) 
+    {
+        if ((*it).second.sleptAtMost() > mostSleep)
+        {
+            mostSleep = (*it).second.sleptAtMost();
+            sleepingGuard = (*it).first;
         }
     }
+    int sleepingMin = guards[sleepingGuard].longestMinute();
 
-    cout << (longestGuard * sleepingMin) << endl;
-
-
+    cout << (sleepingGuard * sleepingMin) << endl;
 }
