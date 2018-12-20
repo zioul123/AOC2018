@@ -12,3 +12,5 @@
 # Files that shouldn't be added
 /Day9/Test/
 /Libraries/
+*.fpp
+Day09/Test
